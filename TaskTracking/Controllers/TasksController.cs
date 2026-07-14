@@ -3,104 +3,84 @@ using Microsoft.EntityFrameworkCore;
 using TaskTracking.Data;
 using TaskTracking.Dtos;
 using TaskTracking.Models;
+using TaskTracking.Services;
 
 namespace TaskTracking.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class TasksController : ControllerBase
 {
-    private readonly AppDbContext _context;
-
-    public TasksController(AppDbContext context)
+    private readonly ITaskService _taskService;
+    public TasksController(
+        ITaskService  taskService
+        )
     {
-        _context = context;
+        _taskService = taskService;
     }
     
     [HttpGet]
     public async Task<ActionResult<List<TaskResponse>>> GetTasks()
     {
-        var taskList = await _context.Tasks.ToListAsync();
-       
-        var response = taskList.Select(MapTaskItemToTaskResponse).ToList();
-            
+        var response = await _taskService.GetTasksAsync();
         return Ok(response);
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TaskResponse>> GetTaskById(int id)
     {
-        var taskItem = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
-
-        if (taskItem is null) return NotFound();
-
-        var response = MapTaskItemToTaskResponse(taskItem);
-        
+        var response =  await _taskService.GetTaskByIdAsync(id);
+        if(response is null)
+            return NotFound();
         return Ok(response);
-
     }
 
     [HttpPost]
     public async Task<ActionResult<TaskResponse>> CreateTask([FromBody] CreateTaskRequest request)
     {
-        if(string.IsNullOrWhiteSpace(request.Title))
-            return BadRequest("Title is required");
-        
-        var taskItem = new TaskItem
+        try
         {
-            IsCompleted = false,
-            Title = request.Title.Trim(),
-            CreatedAt = DateTime.UtcNow
-        };
+            var response = await _taskService.CreateTaskAsync(request);
 
-        _context.Tasks.Add(taskItem);
-        await _context.SaveChangesAsync();
-        
-        TaskResponse response = MapTaskItemToTaskResponse(taskItem);
-        
-        return CreatedAtAction(nameof(GetTaskById),new { id = response.Id }, response);
+            return CreatedAtAction(nameof(GetTaskById), new { id = response.Id }, response);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
 
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateTask(int id, [FromBody] UpdateTaskRequest taskItemToUpdateRequest)
     {
-        var taskExisting = await _context.Tasks.FirstOrDefaultAsync(t=>t.Id == id);
-        
-        if(taskExisting is null)
+        try
+        {
+            await _taskService.UpdateTaskAsync(id, taskItemToUpdateRequest);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException)
+        {
             return NotFound();
-        
-        if (string.IsNullOrWhiteSpace(taskItemToUpdateRequest.Title))
-            return BadRequest("Title is required");
-        
-        taskExisting.Title = taskItemToUpdateRequest.Title.Trim();
-        taskExisting.IsCompleted = taskItemToUpdateRequest.IsCompleted;
-        
-        await _context.SaveChangesAsync();
-        return NoContent();
+        }
+
         
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteTask(int id)
     {
-        var existingTaskItem = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
-
-        if (existingTaskItem is null)
-            return NotFound();
-        
-        _context.Tasks.Remove(existingTaskItem);
-        await _context.SaveChangesAsync();
-        return NoContent();
-    }
-
-    private static TaskResponse MapTaskItemToTaskResponse(TaskItem item)
-    {
-        return new TaskResponse
+        try
         {
-            Id = item.Id,
-            Title = item.Title,
-            CreatedAt = item.CreatedAt,
-            IsCompleted = item.IsCompleted,
-        };
+            await _taskService.DeleteTaskAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 }

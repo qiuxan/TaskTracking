@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TaskTracking.Data;
+using TaskTracking.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=tasks.db"));
+
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
