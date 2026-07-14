@@ -57,6 +57,9 @@ public class TaskService:ITaskService
         _context.Tasks.Add(taskItem);
         await _context.SaveChangesAsync();
 
+        if (taskItem.CategoryId is not null)
+            await _context.Entry(taskItem).Reference(t => t.Category).LoadAsync();
+
         return MapTaskItemToTaskResponse(taskItem);
     }
 
