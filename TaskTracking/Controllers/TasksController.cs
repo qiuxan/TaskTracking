@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TaskTracking.Data;
 using TaskTracking.Models;
 
 namespace TaskTracking.Controllers;
@@ -6,41 +8,24 @@ namespace TaskTracking.Controllers;
 [Route("api/[controller]")]
 public class TasksController : ControllerBase
 {
-    private static readonly List<TaskItem> _taskItems =
-            [
-                new TaskItem
-                {
-                    Id = 1,
-                    Title = "Review LINQ",
-                    IsCompleted = false,
-                    CreatedAt = DateTime.UtcNow
-                },
-                new TaskItem
-                {
-                    Id = 2,
-                    Title = "Build Tasks API",
-                    IsCompleted = false,
-                    CreatedAt = DateTime.UtcNow
-                },
-                new TaskItem
-                {
-                    Id = 3,
-                    Title = "Check React",
-                    IsCompleted = false,
-                    CreatedAt = DateTime.UtcNow
-                },
-            ];
+    private readonly AppDbContext _context;
+
+    public TasksController(AppDbContext context)
+    {
+        _context = context;
+    }
     
     [HttpGet]
-    public ActionResult<List<TaskItem>> GetTasks()
+    public async Task<ActionResult<List<TaskItem>>> GetTasks()
     {
-        return Ok(_taskItems);
+        var taskList = await _context.Tasks.ToListAsync();
+        return Ok(taskList);
     }
 
     [HttpGet("{id:int}")]
-    public ActionResult<TaskItem> GetTaskById(int id)
+    public async Task<ActionResult<TaskItem>> GetTaskById(int id)
     {
-        var taskItem = _taskItems.FirstOrDefault(i => i.Id == id);
+        var taskItem = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
 
         if (taskItem is null) return NotFound();
         
@@ -49,24 +34,42 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<TaskItem> CreateTask([FromBody] TaskItem taskItemToCreate)
+    public async Task<ActionResult<TaskItem>> CreateTask([FromBody] TaskItem taskItemToCreate)
     {
         if(string.IsNullOrEmpty(taskItemToCreate.Title))
             return BadRequest("Title is required");
-
-        var existing = _taskItems.FirstOrDefault(t => t.Id == taskItemToCreate.Id);
-
+        
         var taskItem = new TaskItem
         {
-            Id = _taskItems.Max(i => i.Id) + 1,
             IsCompleted = false,
             Title = taskItemToCreate.Title,
             CreatedAt = DateTime.UtcNow
         };
 
-        _taskItems.Add(taskItem);
+        _context.Tasks.Add(taskItem);
+        await _context.SaveChangesAsync();
+        
         return CreatedAtAction(nameof(GetTaskById),new { id = taskItem.Id }, taskItem);
 
     }
 
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> UpdateTask(int id, [FromBody] TaskItem taskItemToUpdate)
+    {
+        var taskExisting = await _context.Tasks.FirstOrDefaultAsync(t=>t.Id == id);
+        
+        if(taskExisting is null)
+            return NotFound();
+        
+        if (string.IsNullOrWhiteSpace(taskItemToUpdate.Title))
+            return BadRequest("Title is required");
+        
+        taskExisting.Title = taskItemToUpdate.Title.Trim();
+        taskExisting.IsCompleted = taskItemToUpdate.IsCompleted;
+        
+        await _context.SaveChangesAsync();
+        return NoContent();
+        
+    }
+    
 }
