@@ -1,5 +1,6 @@
 import { Link, NavLink, Route, Routes } from 'react-router-dom'
 import './App.css'
+import { TasksPage } from './pages/TasksPage'
 
 function App() {
   return (
@@ -10,15 +11,14 @@ function App() {
         </Link>
 
         <nav className="nav-links" aria-label="Main navigation">
-          <NavLink to="/tasks">Tasks</NavLink>
+          <NavLink to="/">Tasks</NavLink>
           <NavLink to="/categories">Categories</NavLink>
         </nav>
       </header>
 
       <main className="page">
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/" element={<TasksPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
@@ -27,28 +27,8 @@ function App() {
   )
 }
 
-function HomePage() {
-  return (
-    <section className="panel">
-      <p className="eyebrow">Full-stack practice</p>
-      <h1>React routes are connected.</h1>
-      <p>
-        This frontend is served by ASP.NET Core from <code>wwwroot</code>. Try
-        opening <code>/tasks</code> or <code>/categories</code> directly.
-      </p>
-    </section>
-  )
-}
 
-function TasksPage() {
-  return (
-    <section className="panel">
-      <p className="eyebrow">Tasks</p>
-      <h1>Tasks page</h1>
-      <p>Next step: load task data from <code>/api/tasks</code>.</p>
-    </section>
-  )
-}
+
 
 function CategoriesPage() {
   return (
