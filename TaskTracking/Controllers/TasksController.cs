@@ -71,5 +71,17 @@ public class TasksController : ControllerBase
         return NoContent();
         
     }
-    
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteTask(int id)
+    {
+        var existingTaskItem = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+
+        if (existingTaskItem is null)
+            return NotFound();
+        
+        _context.Tasks.Remove(existingTaskItem);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
 }
