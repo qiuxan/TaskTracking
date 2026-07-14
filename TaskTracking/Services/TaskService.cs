@@ -16,7 +16,9 @@ public class TaskService:ITaskService
     
     public async Task<List<TaskResponse>> GetTasksAsync()
     {
-       var taskItems = await _context.Tasks.ToListAsync();
+       var taskItems = await _context.Tasks
+           .Include(t => t.Category)
+           .ToListAsync();
        
        var response = taskItems.Select(MapTaskItemToTaskResponse).ToList();
        
@@ -25,7 +27,9 @@ public class TaskService:ITaskService
 
     public async Task<TaskResponse?> GetTaskByIdAsync(int id)
     {
-        var taskItem = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+        var taskItem = await _context.Tasks
+            .Include(t => t.Category)
+            .FirstOrDefaultAsync(t => t.Id == id);
 
         if (taskItem is null)  return null;
 
@@ -39,11 +43,15 @@ public class TaskService:ITaskService
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new ArgumentException("Title is required");
 
+        if (request.CategoryId is not null)
+            await EnsureCategoryExistsAsync(request.CategoryId.Value);
+
         var taskItem = new TaskItem
         {
             IsCompleted = false,
             Title = request.Title.Trim(),
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+            CategoryId = request.CategoryId
         };
 
         _context.Tasks.Add(taskItem);
@@ -61,9 +69,13 @@ public class TaskService:ITaskService
         
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new ArgumentException("Title is required");
+
+        if (request.CategoryId is not null)
+            await EnsureCategoryExistsAsync(request.CategoryId.Value);
         
         taskExisting.Title = request.Title.Trim();
         taskExisting.IsCompleted = request.IsCompleted;
+        taskExisting.CategoryId = request.CategoryId;
         
         await _context.SaveChangesAsync();
 
@@ -86,6 +98,16 @@ public class TaskService:ITaskService
             Title = item.Title,
             CreatedAt = item.CreatedAt,
             IsCompleted = item.IsCompleted,
+            CategoryId = item.CategoryId,
+            CategoryName = item.Category?.Name
         };
+    }
+
+    private async Task EnsureCategoryExistsAsync(int categoryId)
+    {
+        var categoryExists = await _context.Categories.AnyAsync(c => c.Id == categoryId);
+
+        if (!categoryExists)
+            throw new ArgumentException($"Category with id {categoryId} does not exist");
     }
 }
