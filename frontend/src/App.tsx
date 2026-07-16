@@ -1,5 +1,6 @@
 import { Link, NavLink, Route, Routes } from 'react-router-dom'
 import './App.css'
+import { CategoriesPage } from './pages/CategoriesPage'
 import { TasksPage } from './pages/TasksPage'
 
 function App() {
@@ -30,22 +31,12 @@ function App() {
 
 
 
-function CategoriesPage() {
-  return (
-    <section className="panel">
-      <p className="eyebrow">Categories</p>
-      <h1>Categories page</h1>
-      <p>Next step: load category data from <code>/api/categories</code>.</p>
-    </section>
-  )
-}
-
 function NotFoundPage() {
   return (
-    <section className="panel">
+    <section className="workspace">
       <p className="eyebrow">404</p>
       <h1>Page not found</h1>
-      <p>The route exists in React, but no page matches this path.</p>
+      <p className="page-copy">The route exists in React, but no page matches this path.</p>
     </section>
   )
 }

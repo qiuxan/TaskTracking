@@ -69,6 +69,12 @@ public class CategoryService : ICategoryService
         if (category is null)
             throw new KeyNotFoundException($"Category with id {id} not found");
 
+        await _context.Database.ExecuteSqlInterpolatedAsync($"""
+                                                             Update Tasks
+                                                             SET CategoryId = NULL
+                                                             WHERE CategoryId = {id}
+                                                             """);
+
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
     }
