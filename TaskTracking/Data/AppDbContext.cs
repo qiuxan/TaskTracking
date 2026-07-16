@@ -17,7 +17,7 @@ public class AppDbContext:DbContext
             .HasOne(t => t.Category)
             .WithMany(c => c.Tasks)
             .HasForeignKey(t => t.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
         
     }
 }
