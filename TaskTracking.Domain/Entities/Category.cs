@@ -1,4 +1,4 @@
-namespace TaskTracking.Models;
+namespace TaskTracking.Domain.Entities;
 
 public class Category
 {
@@ -6,6 +6,5 @@ public class Category
     public string Name { get; set; } = string.Empty;
 
     public List<TaskItem> Tasks { get; set; } = [];
-    
     
 }

@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TaskTracking.Data;
 using TaskTracking.Dtos;
-using TaskTracking.Models;
 using TaskTracking.Services;
 
 namespace TaskTracking.Controllers;
