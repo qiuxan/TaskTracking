@@ -1,6 +1,6 @@
-using TaskTracking.Dtos;
+using TaskTracking.Application.Tasks.Dtos;
 
-namespace TaskTracking.Services;
+namespace TaskTracking.Application.Tasks;
 
 public interface ITaskService
 {

@@ -1,4 +1,4 @@
-namespace TaskTracking.Dtos;
+namespace TaskTracking.Application.Tasks.Dtos;
 
 public class TaskResponse
 {

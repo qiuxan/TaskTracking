@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using TaskTracking.Application.Tasks;
+using TaskTracking.Application.Tasks.Dtos;
 using TaskTracking.Data;
-using TaskTracking.Dtos;
 using TaskTracking.Domain.Entities;
 
 namespace TaskTracking.Services;

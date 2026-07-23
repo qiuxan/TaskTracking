@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TaskTracking.Application.Tasks;
 using TaskTracking.Data;
 using TaskTracking.Services;
 
