@@ -1,54 +1,63 @@
+using Microsoft.EntityFrameworkCore;
 using TaskTracking.Application.Tasks;
 using TaskTracking.Domain.Entities;
 
 namespace TaskTracking.Infrastructure.Persistence;
 
-public class TaskRepository:ITaskRepository
+public class TaskRepository : ITaskRepository
 {
     private readonly AppDbContext _context;
 
-    public TaskRepository( AppDbContext context)
+    public TaskRepository(AppDbContext context)
     {
         _context = context;
     }
-    
+
     public async Task<List<TaskItem>> GetAllWithCategoryAsync()
     {
-        throw new NotImplementedException();
+        return await _context
+            .Tasks
+            .Include(t => t.Category)
+            .ToListAsync();
     }
 
     public async Task<TaskItem?> GetByIdWithCategoryAsync(int id)
     {
-        throw new NotImplementedException();
+        return await _context.Tasks
+            .Include(t => t.Category)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<TaskItem?> GetByIdAsync(int id)
     {
-        throw new NotImplementedException();
+        return await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<bool> CategoryExistsAsync(int categoryId)
     {
-        throw new NotImplementedException();
+        return await _context.Categories.AnyAsync(c => c.Id == categoryId);
     }
 
     public async Task AddAsync(TaskItem taskItem)
     {
-        throw new NotImplementedException();
+        await _context.Tasks.AddAsync(taskItem);
     }
 
     public void Remove(TaskItem taskItem)
     {
-        throw new NotImplementedException();
+        _context.Tasks.Remove(taskItem);
     }
 
     public async Task LoadCategoryAsync(TaskItem taskItem)
     {
-        throw new NotImplementedException();
+        await _context.Entry(taskItem)
+            .Reference(t => t.Category)
+            .LoadAsync();
     }
 
     public async Task SaveChangesAsync()
     {
-        throw new NotImplementedException();
+        await _context.SaveChangesAsync();
     }
 }
