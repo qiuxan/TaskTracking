@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskTracking.Domain.Entities;
-namespace TaskTracking.Data;
+
+namespace TaskTracking.Infrastructure.Persistence;
 
 public class AppDbContext:DbContext
 {

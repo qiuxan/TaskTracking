@@ -11,4 +11,8 @@
       <ProjectReference Include="..\TaskTracking.Domain\TaskTracking.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
+    </ItemGroup>
+
 </Project>
