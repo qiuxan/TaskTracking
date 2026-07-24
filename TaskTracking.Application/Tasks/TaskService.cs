@@ -46,8 +46,7 @@ public class TaskService : ITaskService
             CategoryId = request.CategoryId
         };
 
-        _taskRepository.Add(taskItem);
-        await _taskRepository.SaveChangesAsync();
+        await _taskRepository.AddAsync(taskItem);
 
         if (taskItem.CategoryId is not null)
             await _taskRepository.LoadCategoryAsync(taskItem);
@@ -68,11 +67,13 @@ public class TaskService : ITaskService
         if (request.CategoryId is not null)
             await EnsureCategoryExistsAsync(request.CategoryId.Value);
 
-        taskExisting.Title = request.Title.Trim();
-        taskExisting.IsCompleted = request.IsCompleted;
-        taskExisting.CategoryId = request.CategoryId;
+        var taskToUpdate = new TaskItem();
+        
+        taskToUpdate.Title = request.Title.Trim();
+        taskToUpdate.IsCompleted = request.IsCompleted;
+        taskToUpdate.CategoryId = request.CategoryId;
 
-        await _taskRepository.SaveChangesAsync();
+        await _taskRepository.UpdateTaskAsync(taskToUpdate);
     }
 
     public async Task DeleteTaskAsync(int id)
@@ -80,8 +81,7 @@ public class TaskService : ITaskService
         var existingTaskItem = await _taskRepository.GetByIdAsync(id);
         if (existingTaskItem is null)
             throw new KeyNotFoundException($"Task with id {id} not found");
-        _taskRepository.Remove(existingTaskItem);
-        await _taskRepository.SaveChangesAsync();
+        await _taskRepository.RemoveAsync(existingTaskItem);
     }
 
     private static TaskResponse MapTaskItemToTaskResponse(TaskItem item)

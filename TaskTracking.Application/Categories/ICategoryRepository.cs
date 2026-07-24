@@ -4,9 +4,9 @@ namespace TaskTracking.Application.Categories;
 
 public interface ICategoryRepository
 {
-    Task<List<Category>> GetAllCategories();
-    Task AddCategoryAsync(Category taskItem);
-    Task<Category?> GetCategoryByIdAsync(int id);
-    Task UpdateCategoryAsync(Category taskItem);
-    Task DeleteCategoryAsync(Category taskItem);
+    Task<List<Category>> GetAllAsync();
+    Task AddAsync(Category taskItem);
+    Task<Category?> GetByIdAsync(int id);
+    Task UpdateAsync(Category taskItem);
+    Task DeleteAsync(Category taskItem);
 }

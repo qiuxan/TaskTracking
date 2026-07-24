@@ -8,8 +8,8 @@ public interface ITaskRepository
     Task<TaskItem?> GetByIdWithCategoryAsync(int id);
     Task<TaskItem?> GetByIdAsync(int id);
     Task<bool> CategoryExistsAsync(int categoryId);
-    void Add(TaskItem taskItem);
-    void Remove(TaskItem taskItem);
+    Task AddAsync(TaskItem taskItem);
+    Task RemoveAsync(TaskItem taskItem);
     Task LoadCategoryAsync(TaskItem taskItem);
-    Task SaveChangesAsync();
+    Task UpdateTaskAsync(TaskItem taskItem);
 }

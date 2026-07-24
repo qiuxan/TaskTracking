@@ -39,14 +39,16 @@ public class TaskRepository : ITaskRepository
         return await _context.Categories.AnyAsync(c => c.Id == categoryId);
     }
 
-    public void Add(TaskItem taskItem)
+    public async Task AddAsync(TaskItem taskItem)
     {
         _context.Tasks.Add(taskItem);
+        await _context.SaveChangesAsync();
     }
 
-    public void Remove(TaskItem taskItem)
+    public async Task RemoveAsync(TaskItem taskItem)
     {
         _context.Tasks.Remove(taskItem);
+        await _context.SaveChangesAsync();
     }
 
     public async Task LoadCategoryAsync(TaskItem taskItem)
@@ -56,9 +58,9 @@ public class TaskRepository : ITaskRepository
             .LoadAsync();
     }
 
-    public async Task SaveChangesAsync()
+    public async Task UpdateTaskAsync(TaskItem taskItem)
     {
+        _context.Tasks.Update(taskItem);
         await _context.SaveChangesAsync();
     }
-    
 }

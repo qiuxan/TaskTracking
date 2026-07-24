@@ -14,14 +14,14 @@ public class CategoryService : ICategoryService
 
     public async Task<List<CategoryResponse>> GetCategoriesAsync()
     {
-        var categories = await _categoryRepository.GetAllCategories();
+        var categories = await _categoryRepository.GetAllAsync();
 
         return categories.Select(MapCategoryToCategoryResponse).ToList();
     }
 
     public async Task<CategoryResponse?> GetCategoryByIdAsync(int id)
     {
-        var category = await _categoryRepository.GetCategoryByIdAsync(id);
+        var category = await _categoryRepository.GetByIdAsync(id);
 
         if (category is null)
             return null;
@@ -39,14 +39,14 @@ public class CategoryService : ICategoryService
             Name = request.Name.Trim()
         };
 
-        await _categoryRepository.AddCategoryAsync(category);
+        await _categoryRepository.AddAsync(category);
 
         return MapCategoryToCategoryResponse(category);
     }
 
     public async Task UpdateCategoryAsync(int id, UpdateCategoryRequest request)
     {
-        var category = await _categoryRepository.GetCategoryByIdAsync(id);
+        var category = await _categoryRepository.GetByIdAsync(id);
 
         if (category is null)
             throw new KeyNotFoundException($"Category with id {id} not found");
@@ -56,17 +56,17 @@ public class CategoryService : ICategoryService
 
         category.Name = request.Name.Trim();
 
-        await _categoryRepository.UpdateCategoryAsync(category);
+        await _categoryRepository.UpdateAsync(category);
     }
 
     public async Task DeleteCategoryAsync(int id)
     {
-        var category = await _categoryRepository.GetCategoryByIdAsync(id);
+        var category = await _categoryRepository.GetByIdAsync(id);
 
         if (category is null)
             throw new KeyNotFoundException($"Category with id {id} not found");
 
-        await _categoryRepository.DeleteCategoryAsync(category);
+        await _categoryRepository.DeleteAsync(category);
     }
 
     private static CategoryResponse MapCategoryToCategoryResponse(Category category)
