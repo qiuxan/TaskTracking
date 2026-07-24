@@ -1,41 +1,33 @@
-using Microsoft.EntityFrameworkCore;
 using TaskTracking.Application.Tasks;
 using TaskTracking.Application.Tasks.Dtos;
 using TaskTracking.Domain.Entities;
-using TaskTracking.Infrastructure.Persistence;
 
 namespace TaskTracking.Services;
 
-public class TaskService:ITaskService
+public class TaskService : ITaskService
 {
-    private readonly AppDbContext _context;
-    
-    public TaskService(AppDbContext context)
+    private readonly ITaskRepository _taskRepository;
+
+    public TaskService(ITaskRepository taskRepository)
     {
-        _context = context;
+        _taskRepository = taskRepository;
     }
-    
+
     public async Task<List<TaskResponse>> GetTasksAsync()
     {
-       var taskItems = await _context.Tasks
-           .Include(t => t.Category)
-           .ToListAsync();
-       
-       var response = taskItems.Select(MapTaskItemToTaskResponse).ToList();
-       
-       return response;
+        var taskItems = await _taskRepository.GetAllWithCategoryAsync();
+        var response = taskItems.Select(MapTaskItemToTaskResponse).ToList();
+        return response;
     }
 
     public async Task<TaskResponse?> GetTaskByIdAsync(int id)
     {
-        var taskItem = await _context.Tasks
-            .Include(t => t.Category)
-            .FirstOrDefaultAsync(t => t.Id == id);
+        var taskItem = await _taskRepository.GetByIdWithCategoryAsync(id);
 
-        if (taskItem is null)  return null;
+        if (taskItem is null) return null;
 
         var response = MapTaskItemToTaskResponse(taskItem);
-        
+
         return response;
     }
 
@@ -55,45 +47,44 @@ public class TaskService:ITaskService
             CategoryId = request.CategoryId
         };
 
-        _context.Tasks.Add(taskItem);
-        await _context.SaveChangesAsync();
+        _taskRepository.Add(taskItem);
+        await _taskRepository.SaveChangesAsync();
 
         if (taskItem.CategoryId is not null)
-            await _context.Entry(taskItem).Reference(t => t.Category).LoadAsync();
+            await _taskRepository.LoadCategoryAsync(taskItem);
 
         return MapTaskItemToTaskResponse(taskItem);
     }
 
     public async Task UpdateTaskAsync(int id, UpdateTaskRequest request)
     {
-        var taskExisting = await _context.Tasks.FirstOrDefaultAsync(t=>t.Id == id);
-        
-        if(taskExisting is null)
+        var taskExisting = await _taskRepository.GetByIdAsync(id);
+
+        if (taskExisting is null)
             throw new KeyNotFoundException($"Task with id {id} not found");
-        
+
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new ArgumentException("Title is required");
 
         if (request.CategoryId is not null)
             await EnsureCategoryExistsAsync(request.CategoryId.Value);
-        
+
         taskExisting.Title = request.Title.Trim();
         taskExisting.IsCompleted = request.IsCompleted;
         taskExisting.CategoryId = request.CategoryId;
-        
-        await _context.SaveChangesAsync();
 
+        await _taskRepository.SaveChangesAsync();
     }
 
     public async Task DeleteTaskAsync(int id)
     {
-        var existingTaskItem = await _context.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+        var existingTaskItem = await _taskRepository.GetByIdAsync(id);
         if (existingTaskItem is null)
             throw new KeyNotFoundException($"Task with id {id} not found");
-        _context.Tasks.Remove(existingTaskItem);
-        await _context.SaveChangesAsync();
+        _taskRepository.Remove(existingTaskItem);
+        await _taskRepository.SaveChangesAsync();
     }
-    
+
     private static TaskResponse MapTaskItemToTaskResponse(TaskItem item)
     {
         return new TaskResponse
@@ -109,7 +100,7 @@ public class TaskService:ITaskService
 
     private async Task EnsureCategoryExistsAsync(int categoryId)
     {
-        var categoryExists = await _context.Categories.AnyAsync(c => c.Id == categoryId);
+        var categoryExists = await _taskRepository.CategoryExistsAsync(categoryId);
 
         if (!categoryExists)
             throw new ArgumentException($"Category with id {categoryId} does not exist");

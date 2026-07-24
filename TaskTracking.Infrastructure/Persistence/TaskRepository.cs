@@ -39,9 +39,9 @@ public class TaskRepository : ITaskRepository
         return await _context.Categories.AnyAsync(c => c.Id == categoryId);
     }
 
-    public async Task AddAsync(TaskItem taskItem)
+    public void Add(TaskItem taskItem)
     {
-        await _context.Tasks.AddAsync(taskItem);
+        _context.Tasks.Add(taskItem);
     }
 
     public void Remove(TaskItem taskItem)
@@ -60,4 +60,5 @@ public class TaskRepository : ITaskRepository
     {
         await _context.SaveChangesAsync();
     }
+    
 }
