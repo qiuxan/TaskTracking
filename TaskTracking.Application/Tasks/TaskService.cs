@@ -1,8 +1,7 @@
-using TaskTracking.Application.Tasks;
 using TaskTracking.Application.Tasks.Dtos;
 using TaskTracking.Domain.Entities;
 
-namespace TaskTracking.Services;
+namespace TaskTracking.Application.Tasks;
 
 public class TaskService : ITaskService
 {
