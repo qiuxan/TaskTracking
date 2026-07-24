@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TaskTracking.Application.Tasks;
 using TaskTracking.Infrastructure.Persistence;
 using TaskTracking.Services;
+using TaskTracking.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 

@@ -10,4 +10,8 @@
       <ProjectReference Include="..\TaskTracking.Domain\TaskTracking.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.10" />
+    </ItemGroup>
+
 </Project>
