@@ -1,4 +1,4 @@
-namespace TaskTracking.Dtos;
+namespace TaskTracking.Application.Categories.Dtos;
 
 public class CategoryResponse
 {

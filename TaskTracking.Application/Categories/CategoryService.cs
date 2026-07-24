@@ -1,29 +1,27 @@
-using Microsoft.EntityFrameworkCore;
-using TaskTracking.Dtos;
+using TaskTracking.Application.Categories.Dtos;
 using TaskTracking.Domain.Entities;
-using TaskTracking.Infrastructure.Persistence;
 
-namespace TaskTracking.Services;
+namespace TaskTracking.Application.Categories;
 
 public class CategoryService : ICategoryService
 {
-    private readonly AppDbContext _context;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public CategoryService(AppDbContext context)
+    public CategoryService(ICategoryRepository categoryRepository)
     {
-        _context = context;
+        _categoryRepository = categoryRepository;
     }
 
     public async Task<List<CategoryResponse>> GetCategoriesAsync()
     {
-        var categories = await _context.Categories.ToListAsync();
+        var categories = await _categoryRepository.GetAllCategories();
 
         return categories.Select(MapCategoryToCategoryResponse).ToList();
     }
 
     public async Task<CategoryResponse?> GetCategoryByIdAsync(int id)
     {
-        var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
 
         if (category is null)
             return null;
@@ -41,15 +39,14 @@ public class CategoryService : ICategoryService
             Name = request.Name.Trim()
         };
 
-        _context.Categories.Add(category);
-        await _context.SaveChangesAsync();
+        await _categoryRepository.AddCategoryAsync(category);
 
         return MapCategoryToCategoryResponse(category);
     }
 
     public async Task UpdateCategoryAsync(int id, UpdateCategoryRequest request)
     {
-        var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
 
         if (category is null)
             throw new KeyNotFoundException($"Category with id {id} not found");
@@ -59,18 +56,17 @@ public class CategoryService : ICategoryService
 
         category.Name = request.Name.Trim();
 
-        await _context.SaveChangesAsync();
+        await _categoryRepository.UpdateCategoryAsync(category);
     }
 
     public async Task DeleteCategoryAsync(int id)
     {
-        var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
 
         if (category is null)
             throw new KeyNotFoundException($"Category with id {id} not found");
-        
-        _context.Categories.Remove(category);
-        await _context.SaveChangesAsync();
+
+        await _categoryRepository.DeleteCategoryAsync(category);
     }
 
     private static CategoryResponse MapCategoryToCategoryResponse(Category category)

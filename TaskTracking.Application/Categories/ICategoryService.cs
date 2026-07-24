@@ -1,6 +1,6 @@
-using TaskTracking.Dtos;
+using TaskTracking.Application.Categories.Dtos;
 
-namespace TaskTracking.Services;
+namespace TaskTracking.Application.Categories;
 
 public interface ICategoryService
 {

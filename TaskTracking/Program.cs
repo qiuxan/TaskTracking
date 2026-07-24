@@ -1,7 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+using TaskTracking.Application.Categories;
 using TaskTracking.Application.Tasks;
-using TaskTracking.Infrastructure.Persistence;
-using TaskTracking.Services;
 using TaskTracking.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);

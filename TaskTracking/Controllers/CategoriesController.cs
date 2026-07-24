@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using TaskTracking.Dtos;
-using TaskTracking.Services;
+using TaskTracking.Application.Categories;
+using TaskTracking.Application.Categories.Dtos;
 
 namespace TaskTracking.Controllers;
 

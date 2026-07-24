@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TaskTracking.Application.Categories;
 using TaskTracking.Application.Tasks;
 using TaskTracking.Infrastructure.Persistence;
 
@@ -16,6 +17,9 @@ public static class DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
         services.AddScoped<ITaskRepository, TaskRepository>();
+
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+
 
         return services;
     }
